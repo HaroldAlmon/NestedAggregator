@@ -13,10 +13,8 @@ package com.java;
  */
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.scheduling.annotation.Async;
 
 public class nestedAggregator 
 {
