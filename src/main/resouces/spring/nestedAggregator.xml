@@ -43,7 +43,7 @@
 	</int:channel>
 
 	<int:filter id="wordFilter" input-channel="processingChannel" output-channel="aggregationChannel" 
-				expression="payload.length() > 4" throw-exception-on-rejection="true"/>
+				expression="payload.length() > 5" throw-exception-on-rejection="true"/>
 
 	<int:channel id="aggregationChannel"/>
 
@@ -64,7 +64,7 @@
 			expression="payload.getFailedMessage()"/>
 
 	<int:transformer input-channel="markErrorChannel" output-channel="aggregationChannel" 
-			expression="'Error[' + payload + ']'"/>
+			expression="'ERROR[' + payload + ']'"/>
 			
 	<!-- ====== Mark list errors with @@ ======= -->
 			

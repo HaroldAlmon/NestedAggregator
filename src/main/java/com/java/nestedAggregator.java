@@ -31,11 +31,15 @@ public class nestedAggregator
 		context.registerShutdownHook();
 
 		ErrorDemoGateway gateway = context.getBean(ErrorDemoGateway.class);
-		List<String> wordList1 = Arrays.asList( "bye", "hello");			// This list is too short (length < 3) and the listFilter will generate an exception.
-		List<String> wordList2 = Arrays.asList("yes", "goodbye", "no"); // Words must have at least 5 characters.
+		
+		// This list is too short (length < 3) and the list filter will catch the error.
+		List<String> wordList1 = Arrays.asList( "Satis", "est");
+		
+		// Words must have at least 6 characters, otherwise the word filter will catch the error.
+		List<String> wordList2 = Arrays.asList("Veritas", "omnia", "vincit"); 
 		
 		//gateway.process( Arrays.asList( wordList1 )  );	
-		Object o = gateway.process( Arrays.asList( wordList1, wordList2 )  );
+		gateway.process( Arrays.asList( wordList1, wordList2 )  );
 		System.out.println("Finished.");
 		context.close();
     }
