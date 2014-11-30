@@ -4,9 +4,9 @@ package com.java;
  * to process exceptions.
  * 
  * The input has two deliberate errors
- * 1. The first word list has less than three words and marks the list with @@ <list> @@
+ * 1. The first word list has less than three words and marks the list with  LIST-TOO-SHORT<list>
  * 2. The second word list is long enough but contains words with less than five caharcters
- * that are marked as ## <word> ## 
+ * that are marked as WORD-TOO-SHORT<word>
  * 
  * Note the use of the logging channel adapter that allows you to see the contents of
  * the message and the message headers.
