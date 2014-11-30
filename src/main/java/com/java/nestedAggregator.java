@@ -40,7 +40,6 @@ public class nestedAggregator
 		
 		//gateway.process( Arrays.asList( wordList1 )  );	
 		gateway.process( Arrays.asList( wordList1, wordList2 )  );
-		System.out.println("Finished.");
 		context.close();
     }
     
