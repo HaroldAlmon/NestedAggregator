@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<int:gateway service-interface="com.java.Aggregator.ErrorDemoGateway"
+		default-request-channel="startChannel" error-channel="processErrorChannel"/>
+		
+	<int:channel id="startChannel" />
+	
+	<int:splitter input-channel="startChannel" output-channel="startThreads" />
+	
+	<int:channel id="startThreads">
+		<int:dispatcher task-executor="executorOuter"/>
+	</int:channel>
+	
+	<int:header-enricher input-channel="startThreads" output-channel="threadsStarted">
+		<int:error-channel overwrite="true" value="processListErrorChannel" />
+	</int:header-enricher>
+
+	<int:channel id="threadsStarted" />
+
+	<int:filter id="listFilter" input-channel="threadsStarted" output-channel="processList"
+				expression="payload.size() > 2" throw-exception-on-rejection="true"/>
+				
+	<int:channel id="processList"></int:channel>
+
+	<int:splitter input-channel="processList" output-channel="addHeader"/>
+	
+	<int:channel id="addHeader" />
+	
+	<int:header-enricher input-channel="addHeader" output-channel="processingChannel">
+		<int:error-channel overwrite="true" value="processErrorChannel" />
+	</int:header-enricher>
+
+	<int:channel id="processingChannel">
+		<int:dispatcher task-executor="executor"/>
+	</int:channel>
+
+	<int:filter id="wordFilter" input-channel="processingChannel" output-channel="aggregationChannel" 
+				expression="payload.length() > 4" throw-exception-on-rejection="true"/>
+
+	<int:channel id="aggregationChannel"/>
+
+	<int:aggregator input-channel="aggregationChannel" output-channel="outerAggregator"/>
+	
+	<int:channel id="outerAggregator" />
+	
+	<int:aggregator input-channel="outerAggregator" output-channel="loggingChannel"/>
+	
+	<!-- "level" attribute sets the Log Level of the message sent to the logger -->
+	<int:logging-channel-adapter id="loggingChannel" log-full-message="true" level="WARN"/>
+
+	<int:channel id="processErrorChannel"/>
+	
+	<!-- ====== Mark word errors with ## ======= -->
+
+	<int:transformer input-channel="processErrorChannel" output-channel="markErrorChannel" 
+			expression="payload.getFailedMessage()"/>
+
+	<int:transformer input-channel="markErrorChannel" output-channel="aggregationChannel" 
+			expression="'##' + payload + '##'"/>
+			
+	<!-- ====== Mark list errors with @@ ======= -->
+			
+	<int:transformer input-channel="processListErrorChannel" output-channel="markListErrorChannel" 
+			expression="payload.getFailedMessage()"/>
+			
+	<int:channel id="processListErrorChannel"/>
+
+	<int:transformer input-channel="markListErrorChannel" output-channel="outerAggregator" 
+			expression="'@@' + payload + '@@'"/>
+
+	<task:executor id="executor" pool-size="5"/>
+	<task:executor id="executorOuter" pool-size="5"/>
+
+</beans>
