@@ -64,7 +64,7 @@
 			expression="payload.getFailedMessage()"/>
 
 	<int:transformer input-channel="markErrorChannel" output-channel="aggregationChannel" 
-			expression="'ERROR[' + payload + ']'"/>
+			expression="'WORD-TOO-SHORT[' + payload + ']'"/>
 			
 	<!-- ====== Mark list errors with @@ ======= -->
 			
@@ -74,7 +74,7 @@
 	<int:channel id="processListErrorChannel"/>
 
 	<int:transformer input-channel="markListErrorChannel" output-channel="outerAggregator" 
-			expression="'ERROR{' + payload + '}'"/>
+			expression="'LIST-TOO-SHORT{' + payload + '}'"/>
 
 	<task:executor id="executor" pool-size="5"/>
 	<task:executor id="executorOuter" pool-size="5"/>
